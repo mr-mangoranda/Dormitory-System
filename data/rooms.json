@@ -2,11 +2,8 @@
     {
         "number": "01",
         "capacity": 4,
-        "occupants": []
-    },
-    {
-        "number": "02",
-        "capacity": 4,
-        "occupants": []
+        "occupants": [
+            "202435917"
+        ]
     }
 ]

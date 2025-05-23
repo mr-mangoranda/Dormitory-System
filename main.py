@@ -77,6 +77,25 @@ def assignment_menu():
             break
         else:
             print("Invalid choice.")
+def search_menu():
+    while True:
+        print("\nSearch Menu")
+        print("1. Search Student by Name or ID")
+        print("2. Search Room by Room Number")
+        print("0. Back to Main Menu")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            query = input("Enter student name or ID to search: ")
+            student_manager.search_student(query)
+        elif choice == '2':
+            room_number = input("Enter room number to search: ")
+            room_manager.search_room(room_number)
+        elif choice == '0':
+            break
+        else:
+            print("Invalid choice.")
 
 def main_menu():
     while True:
@@ -84,6 +103,7 @@ def main_menu():
         print("1. Student Management")
         print("2. Room Management")
         print("3. Room Assignment")
+        print("4. Search")
         print("0. Exit")
 
         choice = input("Enter your choice: ")
@@ -94,6 +114,8 @@ def main_menu():
             room_menu()
         elif choice == '3':
             assignment_menu()
+        elif choice == '4':
+            search_menu()
         elif choice == '0':
             print("Exiting...")
             break

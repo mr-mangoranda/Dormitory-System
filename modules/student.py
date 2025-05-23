@@ -1,11 +1,9 @@
-import uuid
-from modules.file_io import load_data, save_data
-
-STUDENT_FILE = "data/students.json"
+import json
+import os
 
 class Student:
-    def __init__(self, student_id, name, age, gender, room=None):
-        self.id = student_id
+    def __init__(self, id, name, age, gender, room=None):
+        self.id = id
         self.name = name
         self.age = age
         self.gender = gender
@@ -20,29 +18,50 @@ class Student:
             "room": self.room
         }
 
-    @staticmethod
-    def from_dict(data):
-        return Student(
-            student_id=data["id"],
-            name=data["name"],
-            age=data["age"],
-            gender=data["gender"],
-            room=data.get("room")
-        )
-
 class StudentManager:
-    def __init__(self):
-        self.students = [Student.from_dict(s) for s in load_data(STUDENT_FILE)]
+    def __init__(self, filename="data/students.json"):
+        self.filename = filename
+        self.students = self.load_data()
 
-    def save(self):
-        save_data(STUDENT_FILE, [s.to_dict() for s in self.students])
+    def load_data(self):
+        try:
+            if os.path.exists(self.filename):
+                with open(self.filename, "r") as f:
+                    data = json.load(f)
+                    return [Student(**d) for d in data]
+            else:
+                return []
+        except json.JSONDecodeError:
+            print("Error: Invalid data in students.json. Starting with an empty list.")
+            return []
+        except Exception as e:
+            print(f"Unexpected error loading students: {e}")
+            return []
+
+    def save_data(self):
+        try:
+            with open(self.filename, "w") as f:
+                json.dump([s.to_dict() for s in self.students], f, indent=4)
+        except Exception as e:
+            print(f"Error saving student data: {e}")
 
     def add_student(self, name, age, gender):
-        student_id = str(uuid.uuid4())[:8]
-        student = Student(student_id, name, age, gender)
-        self.students.append(student)
-        self.save()
-        print(f"Student {name} added with ID: {student_id}")
+        try:
+            student_id = input("Enter student ID: ").strip()
+            if not student_id:
+                raise ValueError("Student ID cannot be empty.")
+            if any(s.id == student_id for s in self.students):
+                print("Error: A student with that ID already exists.")
+                return
+
+            new_student = Student(student_id, name, age, gender)
+            self.students.append(new_student)
+            self.save_data()
+            print(f"Student {name} added successfully with ID {student_id}.")
+        except ValueError as ve:
+            print(f"Input Error: {ve}")
+        except Exception as e:
+            print(f"Unexpected error adding student: {e}")
 
     def view_all_students(self):
         if not self.students:
@@ -54,16 +73,32 @@ class StudentManager:
             print(f"{s.id} - {s.name} ({s.gender}, {s.age}) | Room: {room_info}")
 
     def delete_student(self, student_id):
-        for student in self.students:
-            if student.id == student_id:
+        try:
+            student = next((s for s in self.students if s.id == student_id), None)
+            if student:
                 self.students.remove(student)
-                self.save()
-                print(f"Student {student.name} deleted.")
-                return
-        print("Student not found.")
+                self.save_data()
+                print(f"Student {student_id} deleted successfully.")
+            else:
+                print("Student not found.")
+        except Exception as e:
+            print(f"Error deleting student: {e}")
 
-    def get_student_by_id(self, student_id):
-        for student in self.students:
-            if student.id == student_id:
-                return student
-        return None
+    def search_student(self, query):
+        try:
+            results = []
+            query = query.lower()
+
+            for student in self.students:
+                if query in student.name.lower() or query == student.id:
+                    results.append(student)
+
+            if not results:
+                print("No matching students found.")
+                return
+
+            for s in results:
+                room_info = s.room if s.room else "Unassigned"
+                print(f"{s.id} - {s.name} ({s.gender}, {s.age}) | Room: {room_info}")
+        except Exception as e:
+            print(f"Error searching students: {e}")
