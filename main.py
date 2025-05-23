@@ -1,5 +1,5 @@
-from modules.student import add_student, view_students, add_room
-from modules.room import assign_room_to_student, view_all_rooms
+from modules.student import add_student, view_students, add_room, delete_student
+from modules.room import assign_room_to_student, view_all_rooms, delete_room
 
 
 def main_menu():
@@ -10,6 +10,8 @@ def main_menu():
         print("3. Add New Rroom")
         print("4. Assign Room to Student")
         print("5. View All Rooms")
+        print("6. Delete Student")
+        print("7. Delete Room")
 
         print("0. Exit")
 
@@ -25,6 +27,10 @@ def main_menu():
             assign_room_to_student()
         elif choice == "5":
             view_all_rooms()
+        elif choice == "6":
+            delete_student()
+        elif choice == "7":
+            delete_room()
         elif choice == "0":
             print("Exiting the system. Goodbye!")
             break

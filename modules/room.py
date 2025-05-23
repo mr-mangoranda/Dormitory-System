@@ -82,3 +82,35 @@ def view_all_rooms():
                     print(f" - Unknown student ID: {student_id}")
         else:
             print(" - None")
+
+# modules/room.py (continued)
+
+def delete_room():
+    print("\n=== Delete Room ===")
+
+    rooms = load_data(ROOM_FILE)
+
+    if not rooms:
+        print("❌ No rooms found.")
+        return
+
+    room_number = input("Enter Room Number to delete: ").strip().upper()
+    room = next((r for r in rooms if r["number"] == room_number), None)
+
+    if not room:
+        print("❌ Room not found.")
+        return
+
+    if room["occupants"]:
+        print("❌ Cannot delete room. It has occupants.")
+        return
+
+    confirm = input(f"Are you sure you want to delete Room {room_number} (Y/N)? ").strip().lower()
+    if confirm != 'y':
+        print("❌ Deletion cancelled.")
+        return
+
+    rooms = [r for r in rooms if r["number"] != room_number]
+    save_data(ROOM_FILE, rooms)
+
+    print(f"✅ Room {room_number} deleted.")

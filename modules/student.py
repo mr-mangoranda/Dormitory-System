@@ -1,4 +1,5 @@
 from modules.file_io import load_data, save_data
+from modules.room import ROOM_FILE
 
 STUDENT_FILE = 'data/students.json'
 ROOM_FILE = 'data/rooms.json'
@@ -80,3 +81,40 @@ def add_room():
 
     print(f"Room {room_number} added with capacity {capacity}")
 
+def delete_student():
+    print("\n=== Delete Student ===")
+
+    students = load_data(STUDENT_FILE)
+    rooms = load_data(ROOM_FILE)
+
+    if not students:
+        print("No students found.")
+        return
+
+    student_id = input("Enter Student ID to delete: ").strip()
+    student = next((s for s in students if s["id"] == student_id), None)
+
+    if not student:
+        print("Student not found.")
+        return
+
+    confirm = input(f"Are you sure you want to delete {student['name']} (Y/N)? ").strip().lower()
+    if confirm != 'y':
+        print("Deletion cancelled.")
+        return
+
+    # Remove student from room if assigned
+    if student["room"]:
+        for room in rooms:
+            if room["number"] == student["room"]:
+                room["occupants"] = [id for id in room["occupants"] if id != student_id]
+                break
+
+    # Remove student from list
+    students = [s for s in students if s["id"] != student_id]
+
+    # Save both files
+    save_data(STUDENT_FILE, students)
+    save_data(ROOM_FILE, rooms)
+
+    print(f"Student {student['name']} deleted.")
