@@ -32,7 +32,7 @@ def add_student():
     print(f"Student '{name}' added successfully!")
 
 def view_students():
-    print("\n=== All Students ===")
+    print("\n======================== All Students =======================\n")
 
     students = load_data(STUDENT_FILE)
 
@@ -80,4 +80,3 @@ def add_room():
 
     print(f"Room {room_number} added with capacity {capacity}")
 
-    

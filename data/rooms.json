@@ -2,6 +2,8 @@
     {
         "number": "01",
         "capacity": 4,
-        "occupants": []
+        "occupants": [
+            "20243512"
+        ]
     }
 ]
