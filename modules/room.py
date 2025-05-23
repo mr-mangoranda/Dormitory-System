@@ -55,3 +55,30 @@ def assign_room_to_student():
     save_data(ROOM_FILE, rooms)
 
     print(f"{student['name']} assigned to Room {room['number']}.")
+
+    # modules/room.py (continued)
+
+def view_all_rooms():
+    print("\n=== All Rooms ===")
+
+    rooms = load_data(ROOM_FILE)
+    students = load_data(STUDENT_FILE)
+
+    if not rooms:
+        print("No rooms found.")
+        return
+
+    for room in rooms:
+        print(f"\nRoom Number: {room['number']}")
+        print(f"Capacity: {room['capacity']}")
+        print(f"Occupants ({len(room['occupants'])}/{room['capacity']}):")
+
+        if room["occupants"]:
+            for student_id in room["occupants"]:
+                student = next((s for s in students if s["id"] == student_id), None)
+                if student:
+                    print(f" - {student['name']} ({student['id']})")
+                else:
+                    print(f" - Unknown student ID: {student_id}")
+        else:
+            print(" - None")
