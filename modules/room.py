@@ -1,160 +1,110 @@
 from modules.file_io import load_data, save_data
+from modules.student import StudentManager
 
-ROOM_FILE = 'data/rooms.json'
-STUDENT_FILE = 'data/students.json'
+ROOM_FILE = "data/rooms.json"
 
-def assign_room_to_student():
-    print("\n=== Assign Room to Student ===")
+class Room:
+    def __init__(self, number, capacity, occupants=None):
+        self.number = number
+        self.capacity = capacity
+        self.occupants = occupants if occupants else []
 
-    students = load_data(STUDENT_FILE)
-    rooms = load_data(ROOM_FILE)
+    def to_dict(self):
+        return {
+            "number": self.number,
+            "capacity": self.capacity,
+            "occupants": self.occupants
+        }
 
-    # Get unassigned students
-    unassigned_students = [s for s in students if not s['room']]
-    if not unassigned_students:
-        print("All students are already assigned to rooms.")
-        return
+    @staticmethod
+    def from_dict(data):
+        return Room(
+            number=data["number"],
+            capacity=data["capacity"],
+            occupants=data.get("occupants", [])
+        )
 
-    print("\nUnassigned Students:")
-    for s in unassigned_students:
-        print(f"{s['id']}: {s['name']} ({s['gender']})")
+class RoomManager:
+    def __init__(self):
+        self.rooms = [Room.from_dict(r) for r in load_data(ROOM_FILE)]
+        self.student_manager = StudentManager()
 
-    student_id = input("Enter Student ID to assign: ").strip()
-    student = next((s for s in students if s['id'] == student_id and not s['room']), None)
+    def save(self):
+        save_data(ROOM_FILE, [r.to_dict() for r in self.rooms])
+        self.student_manager.save()
 
-    if not student:
-        print("Invalid or already assigned student.")
-        return
+    def add_room(self, number, capacity):
+        if any(r.number == number for r in self.rooms):
+            print("Room already exists.")
+            return
+        self.rooms.append(Room(number, capacity))
+        self.save()
+        print(f"Room {number} added.")
 
-    # Get rooms with space
-    available_rooms = [r for r in rooms if len(r['occupants']) < r['capacity']]
-    if not available_rooms:
-        print("No available rooms.")
-        return
+    def view_all_rooms(self):
+        if not self.rooms:
+            print("No rooms found.")
+            return
+        for r in self.rooms:
+            print(f"Room {r.number} - {len(r.occupants)}/{r.capacity} occupants")
 
-    print("\nAvailable Rooms:")
-    for r in available_rooms:
-        space_left = r['capacity'] - len(r['occupants'])
-        print(f"{r['number']} - Capacity: {r['capacity']} | Occupied: {len(r['occupants'])} | Space Left: {space_left}")
-
-    room_number = input("Enter Room Number to assign: ").strip().upper()
-    room = next((r for r in rooms if r['number'] == room_number and len(r['occupants']) < r['capacity']), None)
-
-    if not room:
-        print("Invalid room or room is full.")
-        return
-
-    # Update room and student
-    room['occupants'].append(student['id'])
-    student['room'] = room['number']
-
-    # Save changes
-    save_data(STUDENT_FILE, students)
-    save_data(ROOM_FILE, rooms)
-
-    print(f"{student['name']} assigned to Room {room['number']}.")
-
-    # modules/room.py (continued)
-
-def view_all_rooms():
-    print("\n=== All Rooms ===")
-
-    rooms = load_data(ROOM_FILE)
-    students = load_data(STUDENT_FILE)
-
-    if not rooms:
-        print("No rooms found.")
-        return
-
-    for room in rooms:
-        print(f"\nRoom Number: {room['number']}")
-        print(f"Capacity: {room['capacity']}")
-        print(f"Occupants ({len(room['occupants'])}/{room['capacity']}):")
-
-        if room["occupants"]:
-            for student_id in room["occupants"]:
-                student = next((s for s in students if s["id"] == student_id), None)
-                if student:
-                    print(f" - {student['name']} ({student['id']})")
-                else:
-                    print(f" - Unknown student ID: {student_id}")
-        else:
-            print(" - None")
-
-# modules/room.py (continued)
-
-def delete_room():
-    print("\n=== Delete Room ===")
-
-    rooms = load_data(ROOM_FILE)
-
-    if not rooms:
-        print("No rooms found.")
-        return
-
-    room_number = input("Enter Room Number to delete: ").strip().upper()
-    room = next((r for r in rooms if r["number"] == room_number), None)
-
-    if not room:
+    def delete_room(self, number):
+        for room in self.rooms:
+            if room.number == number:
+                if room.occupants:
+                    print("Cannot delete room with assigned students.")
+                    return
+                self.rooms.remove(room)
+                self.save()
+                print(f"Room {number} deleted.")
+                return
         print("Room not found.")
-        return
 
-    if room["occupants"]:
-        print("Cannot delete room. It has occupants.")
-        return
+    def view_available_rooms(self):
+        available = [r for r in self.rooms if len(r.occupants) < r.capacity]
+        if not available:
+            print("No available rooms.")
+            return
+        for r in available:
+            print(f"Room {r.number} - {r.capacity - len(r.occupants)} slots available")
 
-    confirm = input(f"Are you sure you want to delete Room {room_number} (Y/N)? ").strip().lower()
-    if confirm != 'y':
-        print("Deletion cancelled.")
-        return
+    def assign_room_to_student(self, student_id, room_number):
+        student = self.student_manager.get_student_by_id(student_id)
+        if not student:
+            print("Student not found.")
+            return
 
-    rooms = [r for r in rooms if r["number"] != room_number]
-    save_data(ROOM_FILE, rooms)
+        for room in self.rooms:
+            if room.number == room_number:
+                if len(room.occupants) >= room.capacity:
+                    print("Room is full.")
+                    return
+                if student.room:
+                    print("Student already assigned to a room.")
+                    return
+                room.occupants.append(student_id)
+                student.room = room.number
+                self.save()
+                print(f"Assigned Room {room.number} to {student.name}")
+                return
+        print("Room not found.")
 
-    print(f"Room {room_number} deleted.")
+    def unassign_student_from_room(self, student_id):
+        student = self.student_manager.get_student_by_id(student_id)
+        if not student:
+            print("Student not found.")
+            return
 
-def unassign_student_from_room():
-    print("\n=== Unassign Student from Room ===")
+        if not student.room:
+            print("Student is not assigned to any room.")
+            return
 
-    students = load_data(STUDENT_FILE)
-    rooms = load_data(ROOM_FILE)
+        for room in self.rooms:
+            if room.number == student.room:
+                if student_id in room.occupants:
+                    room.occupants.remove(student_id)
+                    break
 
-    student_id = input("Enter Student ID to unassign: ").strip()
-    student = next((s for s in students if s["id"] == student_id), None)
-
-    if not student:
-        print("Student not found.")
-        return
-
-    if not student["room"]:
-        print("ℹStudent is not assigned to any room.")
-        return
-
-    # Remove student from room's occupant list
-    for room in rooms:
-        if room["number"] == student["room"]:
-            room["occupants"] = [id for id in room["occupants"] if id != student_id]
-            break
-
-    student["room"] = None  # Unassign room in student record
-
-    # Save changes
-    save_data(STUDENT_FILE, students)
-    save_data(ROOM_FILE, rooms)
-
-    print(f"Student {student['name']} has been unassigned from the room.")
-
-def view_available_rooms():
-    print("\n=== Available Rooms ===")
-
-    rooms = load_data(ROOM_FILE)
-
-    available = [room for room in rooms if len(room["occupants"]) < room["capacity"]]
-
-    if not available:
-        print("No available rooms found.")
-        return
-
-    for room in available:
-        remaining = room["capacity"] - len(room["occupants"])
-        print(f"Room {room['number']} - {remaining} slot(s) available")
+        student.room = None
+        self.save()
+        print(f"Student {student.name} unassigned from room.")

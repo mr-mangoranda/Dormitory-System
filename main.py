@@ -1,30 +1,30 @@
-from modules.student import add_student, view_students, add_room, delete_student
-from modules.room import assign_room_to_student, view_all_rooms, delete_room, unassign_student_from_room, view_available_rooms
+from modules.student import StudentManager
+from modules.room import RoomManager
 
-def main_menu():
-    while True:
-        print("\n===== Dormitory Management System =====")
-        print(" 1. Student Management")
-        print(" 2. Room Management")
-        print(" 3. Room Assignment")
-        print(" 0. Exit")
+# Create manager instances
+student_manager = StudentManager()
+room_manager = RoomManager()
 
 def student_menu():
     while True:
         print("\nStudent Management")
-        print(" 1. Add Student")
-        print(" 2. View All Students")
-        print(" 3. Delete Student")
-        print(" 0. Back to Main Menu")
+        print("1. Add Student")
+        print("2. View All Students")
+        print("3. Delete Student")
+        print("0. Back to Main Menu")
 
         choice = input("Enter your choice: ")
 
         if choice == '1':
-            add_student()
+            name = input("Enter name: ")
+            age = input("Enter age: ")
+            gender = input("Enter gender (M/F): ")
+            student_manager.add_student(name, age, gender)
         elif choice == '2':
-            view_students()
+            student_manager.view_all_students()
         elif choice == '3':
-            delete_student()
+            student_id = input("Enter student ID to delete: ")
+            student_manager.delete_student(student_id)
         elif choice == '0':
             break
         else:
@@ -33,22 +33,25 @@ def student_menu():
 def room_menu():
     while True:
         print("\nRoom Management")
-        print(" 1. Add Room")
-        print(" 2. View All Rooms")
-        print(" 3. View Available Rooms")
-        print(" 4. Delete Room")
-        print(" 0. Back to Main Menu")
+        print("1. Add Room")
+        print("2. View All Rooms")
+        print("3. View Available Rooms")
+        print("4. Delete Room")
+        print("0. Back to Main Menu")
 
         choice = input("Enter your choice: ")
 
         if choice == '1':
-            add_room()
+            number = input("Enter room number: ")
+            capacity = int(input("Enter room capacity: "))
+            room_manager.add_room(number, capacity)
         elif choice == '2':
-            view_all_rooms()
+            room_manager.view_all_rooms()
         elif choice == '3':
-            view_available_rooms()
+            room_manager.view_available_rooms()
         elif choice == '4':
-            delete_room()
+            number = input("Enter room number to delete: ")
+            room_manager.delete_room(number)
         elif choice == '0':
             break
         else:
@@ -64,15 +67,24 @@ def assignment_menu():
         choice = input("Enter your choice: ")
 
         if choice == '1':
-            assign_room_to_student()
+            student_id = input("Enter student ID: ")
+            room_number = input("Enter room number: ")
+            room_manager.assign_room_to_student(student_id, room_number)
         elif choice == '2':
-            unassign_student_from_room()
+            student_id = input("Enter student ID: ")
+            room_manager.unassign_student_from_room(student_id)
         elif choice == '0':
             break
         else:
             print("Invalid choice.")
 
-
+def main_menu():
+    while True:
+        print("\n===== Dormitory Management System =====")
+        print("1. Student Management")
+        print("2. Room Management")
+        print("3. Room Assignment")
+        print("0. Exit")
 
         choice = input("Enter your choice: ")
 
@@ -83,11 +95,11 @@ def assignment_menu():
         elif choice == '3':
             assignment_menu()
         elif choice == '0':
-            print("Goodbye!")
+            print("Exiting...")
             break
         else:
             print("Invalid choice.")
-        
+
+# Start program
 if __name__ == "__main__":
     main_menu()
-

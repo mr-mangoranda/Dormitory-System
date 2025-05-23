@@ -1,120 +1,69 @@
+import uuid
 from modules.file_io import load_data, save_data
-from modules.room import ROOM_FILE
 
-STUDENT_FILE = 'data/students.json'
-ROOM_FILE = 'data/rooms.json'
+STUDENT_FILE = "data/students.json"
 
+class Student:
+    def __init__(self, student_id, name, age, gender, room=None):
+        self.id = student_id
+        self.name = name
+        self.age = age
+        self.gender = gender
+        self.room = room
 
-def add_student():
-    print("\n=== Add New Student ===")
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "age": self.age,
+            "gender": self.gender,
+            "room": self.room
+        }
 
-    # Get user input 
-    student_id = input("Enter Student ID: ")
-    name = input("Enter Student Name: ")
-    gender = input("Enter Gender (Male/Female): ")
+    @staticmethod
+    def from_dict(data):
+        return Student(
+            student_id=data["id"],
+            name=data["name"],
+            age=data["age"],
+            gender=data["gender"],
+            room=data.get("room")
+        )
 
-    # Create a student dictionary
-    student = {
-        "id": student_id,
-        "name": name,
-        "gender": gender,
-        "room": None # Not assigned yet
-    }
+class StudentManager:
+    def __init__(self):
+        self.students = [Student.from_dict(s) for s in load_data(STUDENT_FILE)]
 
-    # load current students
-    students = load_data(STUDENT_FILE)
+    def save(self):
+        save_data(STUDENT_FILE, [s.to_dict() for s in self.students])
 
-    # Add new student 
-    students.append(student)
+    def add_student(self, name, age, gender):
+        student_id = str(uuid.uuid4())[:8]
+        student = Student(student_id, name, age, gender)
+        self.students.append(student)
+        self.save()
+        print(f"Student {name} added with ID: {student_id}")
 
-    # save back to file 
-    save_data(STUDENT_FILE, students)
-
-    print(f"Student '{name}' added successfully!")
-
-def view_students():
-    print("\n======================== All Students =======================\n")
-
-    students = load_data(STUDENT_FILE)
-
-    if not students:
-        print("No students found.")
-        return
-    
-    # Print table header
-    print(f"{'ID':<10} {'Name':<25} {"Gender":<10} {'Room':<10}")
-    print("-" * 60)
-
-    for student in students:
-        room = student['room'] if student['room'] else "Not Assigned"
-        print(f"{student['id']:<10} {student['name']:<25} {student['gender']:<10} {room:<10}")
-
-def add_room():
-    print("\n=== Add New Room ===")
-
-    room_number = input("Enter Room Number: ").strip().upper()
-    try:
-        capacity = int(input("Enter Room Capacity: "))
-    except ValueError:
-        print("Capacity must be a number.")
-        return
-
-    # Load existing rooms
-    rooms = load_data(ROOM_FILE)
-
-    # Check for duplicate room number
-    for room in rooms:
-        if room["number"] == room_number:
-            print("Room already exists.")
+    def view_all_students(self):
+        if not self.students:
+            print("No students found.")
             return
 
-    # Create new room dictionary
-    new_room = {
-        "number": room_number,
-        "capacity": capacity,
-        "occupants": []
-    }
+        for s in self.students:
+            room_info = s.room if s.room else "Unassigned"
+            print(f"{s.id} - {s.name} ({s.gender}, {s.age}) | Room: {room_info}")
 
-    # Add and save
-    rooms.append(new_room)
-    save_data(ROOM_FILE, rooms)
-
-    print(f"Room {room_number} added with capacity {capacity}")
-
-def delete_student():
-    print("\n=== Delete Student ===")
-
-    students = load_data(STUDENT_FILE)
-    rooms = load_data(ROOM_FILE)
-
-    if not students:
-        print("No students found.")
-        return
-
-    student_id = input("Enter Student ID to delete: ").strip()
-    student = next((s for s in students if s["id"] == student_id), None)
-
-    if not student:
+    def delete_student(self, student_id):
+        for student in self.students:
+            if student.id == student_id:
+                self.students.remove(student)
+                self.save()
+                print(f"Student {student.name} deleted.")
+                return
         print("Student not found.")
-        return
 
-    confirm = input(f"Are you sure you want to delete {student['name']} (Y/N)? ").strip().lower()
-    if confirm != 'y':
-        print("Deletion cancelled.")
-        return
-
-    # Remove student from room if assigned
-    if student["room"]:
-        for room in rooms:
-            if room["number"] == student["room"]:
-                room["occupants"] = [id for id in room["occupants"] if id != student_id]
-                break
-
-    # Remove student from list
-    students = [s for s in students if s["id"] != student_id]
-
-    # Save both files
-    save_data(STUDENT_FILE, students)
-    save_data(ROOM_FILE, rooms)
-
-    print(f"Student {student['name']} deleted.")
+    def get_student_by_id(self, student_id):
+        for student in self.students:
+            if student.id == student_id:
+                return student
+        return None
