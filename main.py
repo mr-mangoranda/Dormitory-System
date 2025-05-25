@@ -9,13 +9,6 @@ student_manager = StudentManager()
 room_manager = RoomManager()
 report_generator = ReportGenerator(student_manager, room_manager)
 
-# Authenticate user
-auth = AuthSystem()
-user = auth.login()
-
-if not user:
-    exit()
-
 
 def student_menu():
     while True:
@@ -89,6 +82,7 @@ def assignment_menu():
             break
         else:
             print("Invalid choice.")
+
 def search_menu():
     while True:
         print("\nSearch Menu")
@@ -126,34 +120,61 @@ def report_menu():
         else:
             print("Invalid choice. Please try again.")
 
+def admin_menu():
+    while True:
+        print("\n--- ADMIN MENU ---")
+        print("1. Generate Reports")
+        print("2. Register New User")
+        print("3. Back to Main Menu")
+
+        choice = input("Select an option: ").strip()
+
+        if choice == "1":
+            report_menu()
+        elif choice == "2":
+            auth.register_user
+        elif choice == "3":
+            break
+        else:
+            print("Invalid choice.")
+
+
 def main_menu():
     while True:
-        print("\n===== Dormitory Management System =====")
+        print("\n--- MAIN MENU ---")
         print("1. Student Management")
         print("2. Room Management")
-        print("3. Room Assignment")
-        print("4. Search")
-        print("5. Generate Reports")
-        print("0. Exit")
+        print("3. Search")
+        
+        if user.role == "admin":
+            print("4. Admin Menu")
+            print("5. Logout / Exit")
+        else:
+            print("4. Logout / Exit")
 
-        choice = input("Enter your choice: ")
 
-        if choice == '1':
+        choice = input("Select an option: ").strip()
+
+        if choice == "1":
             student_menu()
-        elif choice == '2':
+        elif choice == "2":
             room_menu()
-        elif choice == '3':
-            assignment_menu()
-        elif choice == '4':
+        elif choice == "3":
             search_menu()
-        elif choice == '5':
-            report_menu()
-        elif choice == '0':
-            print("Exiting...")
+        elif choice == "4" and user.role == "admin":
+            admin_menu()
+        elif (choice == "4" and user.role != "admin") or (choice == "5" and user.role == "admin"):
+            print("Goodbye!")
             break
         else:
             print("Invalid choice.")
 
 # Start program
 if __name__ == "__main__":
-    main_menu()
+    auth = AuthSystem()
+    user = auth.login()
+
+    if user:
+        main_menu()
+    else:
+        print("Access denied. Exiting system.")

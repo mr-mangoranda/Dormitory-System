@@ -34,3 +34,34 @@ class AuthSystem:
         print("Invalid username or password.")
         return None
     
+    def register_user(self):
+        print("\n=== REGISTER NEW USER ===")
+
+        users = self.load_users()
+
+        username = input("Enter new username: ").strip()
+        if any(user['username'] == username for user in users):
+            print("Username already exists.")
+            return
+
+        password = input("Enter password: ").strip()
+        role = input("Enter role (admin/staff): ").strip().lower()
+
+        if role not in ["admin", "staff"]:
+            print("Invalid role. Must be 'admin' or 'staff'.")
+            return
+
+        new_user = {
+            "username": username,
+            "password": password,
+            "role": role
+        }
+
+        users.append(new_user)
+
+        try:
+            with open(self.users_file, "w") as f:
+                json.dump(users, f, indent=4)
+            print(f"User '{username}' registered successfully as {role}.")
+        except Exception as e:
+            print(f"Failed to register user: {e}")
