@@ -1,9 +1,12 @@
 from modules.student import StudentManager
 from modules.room import RoomManager
+from modules.report import ReportGenerator
+
 
 # Create manager instances
 student_manager = StudentManager()
 room_manager = RoomManager()
+report_generator = ReportGenerator(student_manager, room_manager)
 
 def student_menu():
     while True:
@@ -97,6 +100,23 @@ def search_menu():
         else:
             print("Invalid choice.")
 
+def report_menu():
+    while True:
+        print("\n--- REPORT MENU ---")
+        print("1. Generate Student Report")
+        print("2. Generate Room Report")
+        print("3. Back to Main Menu")
+
+        choice = input("Select an option: ").strip()
+        if choice == "1":
+            report_generator.generate_student_report()
+        elif choice == "2":
+            report_generator.generate_room_report()
+        elif choice == "3":
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
 def main_menu():
     while True:
         print("\n===== Dormitory Management System =====")
@@ -104,6 +124,7 @@ def main_menu():
         print("2. Room Management")
         print("3. Room Assignment")
         print("4. Search")
+        print("5. Generate Reports")
         print("0. Exit")
 
         choice = input("Enter your choice: ")
@@ -116,6 +137,8 @@ def main_menu():
             assignment_menu()
         elif choice == '4':
             search_menu()
+        elif choice == '5':
+            report_menu()
         elif choice == '0':
             print("Exiting...")
             break

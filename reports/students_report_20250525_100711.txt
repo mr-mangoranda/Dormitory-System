@@ -1,0 +1,14 @@
+==== STUDENT REPORT ====
+
+ID: 202435917
+Name: Habib
+Age: 19
+Gender: M
+Room: Unassigned
+
+ID: 202435912
+Name: Jorhan
+Age: 21
+Gender: M
+Room: Unassigned
+
