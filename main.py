@@ -132,7 +132,7 @@ def admin_menu():
         if choice == "1":
             report_menu()
         elif choice == "2":
-            auth.register_user
+            auth.register_user()
         elif choice == "3":
             break
         else:

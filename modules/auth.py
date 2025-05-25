@@ -1,5 +1,7 @@
 import json
 import os
+import hashlib
+import pwinput
 
 USERS_FILE = "data/users.json"
 
@@ -18,15 +20,18 @@ class AuthSystem:
             return []
         with open(self.users_file, "r") as f:
             return json.load(f)
+    def hash_password(self, password):
+        return hashlib.sha256(password.encode()).hexdigest()
 
     def login(self):
         users = self.load_users()
         print("\n=== LOGIN ===")
         username = input("Username: ").strip()
-        password = input("Password: ").strip()
+        password = pwinput.pwinput(prompt="Password: ").strip()
+        hashed_password = self.hash_password(password)
 
         for user in users:
-            if user["username"] == username and user["password"] == password:
+            if user["username"] == username and user["password"] == hashed_password:
                 self.logged_in_user = User(username, user["role"])
                 print(f"Login successful. Welcome, {username} ({user['role']})!")
                 return self.logged_in_user
@@ -44,7 +49,9 @@ class AuthSystem:
             print("Username already exists.")
             return
 
-        password = input("Enter password: ").strip()
+        password = pwinput.pwinput(prompt="Enter password: ").strip()
+        hashed_password = self.hash_password(password)
+
         role = input("Enter role (admin/staff): ").strip().lower()
 
         if role not in ["admin", "staff"]:
@@ -53,7 +60,7 @@ class AuthSystem:
 
         new_user = {
             "username": username,
-            "password": password,
+            "password": hashed_password,
             "role": role
         }
 
@@ -65,3 +72,5 @@ class AuthSystem:
             print(f"User '{username}' registered successfully as {role}.")
         except Exception as e:
             print(f"Failed to register user: {e}")
+
+    
