@@ -1,12 +1,21 @@
 from modules.student import StudentManager
 from modules.room import RoomManager
 from modules.report import ReportGenerator
+from modules.auth import AuthSystem
 
 
 # Create manager instances
 student_manager = StudentManager()
 room_manager = RoomManager()
 report_generator = ReportGenerator(student_manager, room_manager)
+
+# Authenticate user
+auth = AuthSystem()
+user = auth.login()
+
+if not user:
+    exit()
+
 
 def student_menu():
     while True:
