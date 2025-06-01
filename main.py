@@ -21,15 +21,21 @@ def student_menu():
         choice = input("Enter your choice: ")
 
         if choice == '1':
-            name = input("Enter name: ")
-            age = input("Enter age: ")
-            gender = input("Enter gender (M/F): ")
-            student_manager.add_student(name, age, gender)
+            if user.role != "admin":
+                print("Access denied. Only admin can add students.")
+            else:
+                name = input("Enter name: ")
+                age = input("Enter age: ")
+                gender = input("Enter gender (M/F): ")
+                student_manager.add_student(name, age, gender)
         elif choice == '2':
             student_manager.view_all_students()
         elif choice == '3':
-            student_id = input("Enter student ID to delete: ")
-            student_manager.delete_student(student_id)
+            if user.role != "admin":
+                print("Access denied. Only admin can delete students.")
+            else:
+                student_id = input("Enter student ID to delete: ")
+                student_manager.delete_student(student_id)
         elif choice == '0':
             break
         else:
@@ -47,16 +53,22 @@ def room_menu():
         choice = input("Enter your choice: ")
 
         if choice == '1':
-            number = input("Enter room number: ")
-            capacity = int(input("Enter room capacity: "))
-            room_manager.add_room(number, capacity)
+            if user.role != "admin":
+                print("Access denied. Only admin can add rooms.")
+            else:
+                number = input("Enter room number: ")
+                capacity = int(input("Enter room capacity: "))
+                room_manager.add_room(number, capacity)
         elif choice == '2':
             room_manager.view_all_rooms()
         elif choice == '3':
             room_manager.view_available_rooms()
         elif choice == '4':
-            number = input("Enter room number to delete: ")
-            room_manager.delete_room(number)
+            if user.role != "admin":
+                print("Access denied. Only admin can delete rooms.")
+            else:
+                number = input("Enter room number to delete: ")
+                room_manager.delete_room(number)
         elif choice == '0':
             break
         else:
@@ -72,12 +84,18 @@ def assignment_menu():
         choice = input("Enter your choice: ")
 
         if choice == '1':
-            student_id = input("Enter student ID: ")
-            room_number = input("Enter room number: ")
-            room_manager.assign_room_to_student(student_id, room_number)
+            if user.role != "admin":
+                print("Access denied. Only admin can assign rooms.")
+            else:
+                student_id = input("Enter student ID: ")
+                room_number = input("Enter room number: ")
+                room_manager.assign_room_to_student(student_id, room_number)
         elif choice == '2':
-            student_id = input("Enter student ID: ")
-            room_manager.unassign_student_from_room(student_id)
+            if user.role != "admin":
+                print("Access denied. Only admin can unassign rooms.")
+            else:
+                student_id = input("Enter student ID: ")
+                room_manager.unassign_student_from_room(student_id)
         elif choice == '0':
             break
         else:
@@ -112,9 +130,15 @@ def report_menu():
 
         choice = input("Select an option: ").strip()
         if choice == "1":
-            report_generator.generate_student_report()
+            if user.role != "admin":
+                print("Access denied. Only admin can generate reports.")
+            else:
+                report_generator.generate_student_report()
         elif choice == "2":
-            report_generator.generate_room_report()
+            if user.role != "admin":
+                print("Access denied. Only admin can generate reports.")
+            else:
+                report_generator.generate_room_report()
         elif choice == "3":
             break
         else:
@@ -144,13 +168,15 @@ def main_menu():
         print("\n--- MAIN MENU ---")
         print("1. Student Management")
         print("2. Room Management")
-        print("3. Search")
+        print("3. Room Assignment")
+        print("4. Change Password")
+        print("5. Search")
         
         if user.role == "admin":
-            print("4. Admin Menu")
-            print("5. Logout / Exit")
+            print("9. Admin Menu")
+            print("0. Logout / Exit")
         else:
-            print("4. Logout / Exit")
+            print("0. Logout / Exit")
 
 
         choice = input("Select an option: ").strip()
@@ -160,10 +186,14 @@ def main_menu():
         elif choice == "2":
             room_menu()
         elif choice == "3":
+            assignment_menu()
+        elif choice == "4":
+            auth.change_password()
+        elif choice == "5":
             search_menu()
-        elif choice == "4" and user.role == "admin":
+        elif choice == "9" and user.role == "admin":
             admin_menu()
-        elif (choice == "4" and user.role != "admin") or (choice == "5" and user.role == "admin"):
+        elif choice == "0":
             print("Goodbye!")
             break
         else:

@@ -1,0 +1,7 @@
+==== ROOM REPORT ====
+
+Room Number: 01
+Capacity: 4
+Occupants (1):
+ - 202435917
+

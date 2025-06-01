@@ -1,7 +1,7 @@
 [
     {
         "username": "admin",
-        "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+        "password": "ac9689e2272427085e35b9d3e3e8bed88cb3434828b43b86fc0596cad4c6e270",
         "role": "admin"
     },
     {
@@ -13,5 +13,10 @@
         "username": "Habib",
         "password": "d63abf252f87d9f92ebb8f0c98131bc5597c1172112ce84b3eeccf0bd2fc3157",
         "role": "admin"
+    },
+    {
+        "username": "Hakim",
+        "password": "9d5239548d61c49137c47c27b00e250d25832bfd31c2401789897db1e43d20f4",
+        "role": "staff"
     }
 ]

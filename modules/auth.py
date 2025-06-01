@@ -73,4 +73,34 @@ class AuthSystem:
         except Exception as e:
             print(f"Failed to register user: {e}")
 
-    
+    def change_password(self):
+        if not self.logged_in_user:
+            print("You must be logged in to change your password.")
+            return
+
+        users = self.load_users()
+        username = self.logged_in_user.username
+
+        current_password = pwinput.pwinput(prompt="Enter current password: ").strip()
+        hashed_current = self.hash_password(current_password)
+
+        user = next((u for u in users if u["username"] == username), None)
+        if not user or user["password"] != hashed_current:
+            print("Current password is incorrect.")
+            return
+
+        new_password = pwinput.pwinput(prompt="Enter new password: ").strip()
+        confirm_password = pwinput.pwinput(prompt="Confirm new password: ").strip()
+
+        if new_password != confirm_password:
+            print("Passwords do not match.")
+            return
+
+        user["password"] = self.hash_password(new_password)
+
+        try:
+            with open(self.users_file, "w") as f:
+                json.dump(users, f, indent=4)
+            print("Password changed successfully.")
+        except Exception as e:
+            print(f"Failed to change password: {e}")
