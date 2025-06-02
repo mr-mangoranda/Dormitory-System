@@ -23,6 +23,7 @@
                         <th class="px-6 py-3 text-left text-sm font-medium">ID</th>
                         <th class="px-6 py-3 text-left text-sm font-medium">Name</th>
                         <th class="px-6 py-3 text-left text-sm font-medium">Room</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
@@ -31,10 +32,18 @@
                         <td class="px-6 py-4">{{ student.id }}</td>
                         <td class="px-6 py-4">{{ student.name }}</td>
                         <td class="px-6 py-4">{{ student.room }}</td>
+                        <td class="px-6 py-4">
+                            <a href="/students/edit/{{ student.id }}" class="text-blue-600 hover:underline mr-4">Edit</a>
+                            <form method="post" action="/students/delete/{{ student.id }}" class="inline">
+                                <button type="submit" onclick="return confirm('Delete this student?')" class="text-red-600 hover:underline">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td class="px-6 py-4" colspan="3">No students found.</td>
+                        <td class="px-6 py-4" colspan="4">No students found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
