@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Room List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold">Room List</h1>
+            <a href="/rooms/add" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded shadow">
+                + Add Room
+            </a>
+        </div>
+
+        <div class="overflow-x-auto bg-white rounded-xl shadow">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-blue-500 text-white">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-medium">Room ID</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium">Capacity</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium">Occupied</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-gray-700">
+                    {% for room in rooms %}
+                    <tr class="hover:bg-blue-50 transition">
+                        <td class="px-6 py-4">{{ room.id }}</td>
+                        <td class="px-6 py-4">{{ room.capacity }}</td>
+                        <td class="px-6 py-4">{{ room.occupied }}</td>
+                        <td class="px-6 py-4">
+                            <a href="/rooms/edit/{{ room.id }}" class="text-blue-600 hover:underline mr-4">Edit</a>
+                            <form method="post" action="/rooms/delete/{{ room.id }}" class="inline">
+                                <button type="submit" onclick="return confirm('Delete this room?')" class="text-red-600 hover:underline">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td class="px-6 py-4" colspan="4">No rooms found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
